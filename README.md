@@ -172,18 +172,13 @@ SUPABASE_URL=your_supabase_url
    - Create Supabase account and upload required key, url, password of the database
    - Replace username/password with your MongoDB Atlas credentials
 
-
-4. **Change Directory**
-   ```bash
-   cd .\submissions\Memory-Pal
-
    ```
-5. **Run Streamlit App (MVP)**
+4. **Run Streamlit App (MVP)**
    ```bash
    python -m streamlit run app.py
    ```
 
-6. **Upload .assets folder pdf for refernce use**
+5. **Upload .assets folder pdf for refernce use**
    ```
    in Streamlit UI upload this two pdfs financials.pdf and pitch_deck.pdf and you can use prompt.md for refernce or your own propmt (as you wish)
 
