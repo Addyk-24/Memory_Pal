@@ -67,9 +67,9 @@ class DatabaseManager:
             # Test connection
             self.supabase.table('conversations').select('id').limit(1).execute()
             self.connected = True
-            print("✅ Database connection successful")
+            print("  Database connection successful")
         except Exception as e:
-            print(f"❌ Database connection failed: {str(e)}")
+            print(f" Database connection failed: {str(e)}")
             self.connected = False
             self.supabase = None
     
@@ -365,7 +365,7 @@ class ResponseFormatter:
         context = re.sub(r'\[Context \d+\]', '', context)
         
         # Format source information
-        context = re.sub(r'Source: ([^\n]+)', r'📄 Source: \1', context)
+        context = re.sub(r'Source: ([^\n]+)', r' Source: \1', context)
         
         # Clean up relevance scores
         context = re.sub(r'Relevance: [\d.]+', '', context)
@@ -580,7 +580,7 @@ class DocumentEmbedder:
             # Get database credentials from environment
             db_password = os.environ.get("SUPABASE_DB_PASSWORD")
             if not db_password:
-                print("⚠️  SUPABASE_DB_PASSWORD not set, using in-memory storage only")
+                print("  SUPABASE_DB_PASSWORD not set, using in-memory storage only")
                 return
             
             # Extract the project reference from SUPABASE_URL
@@ -595,7 +595,7 @@ class DocumentEmbedder:
             # Format: postgresql://postgres:PASSWORD@db.PROJECT_ID.supabase.co:5432/postgres
             postgres_url = f"postgresql://postgres:{encoded_password}@db.{project_id}.supabase.co:5432/postgres"
             
-            print(f"🔗 Connecting to: postgresql://postgres:***@db.{project_id}.supabase.co:5432/postgres")
+            print(f" Connecting to: postgresql://postgres:***@db.{project_id}.supabase.co:5432/postgres")
             
             self.vector_db = PgVector(
                 table_name="memorypal_documents",
@@ -603,10 +603,10 @@ class DocumentEmbedder:
                 embedder=embeddings,
                 search_type=SearchType.hybrid
             )
-            print("✅ Vector database initialized")
+            print("  Vector database initialized")
         except Exception as e:
-            print(f"❌ Vector database initialization failed: {str(e)}")
-            print(f"🔍 Check your SUPABASE_DB_PASSWORD environment variable")
+            print(f" Vector database initialization failed: {str(e)}")
+            print(f" Check your SUPABASE_DB_PASSWORD environment variable")
             self.vector_db = None
 
     def run(self, input: Dict) -> str:
@@ -668,9 +668,9 @@ class DocumentEmbedder:
                     
                     self.vector_db.insert(chunks)
                     db_success = True
-                    print("✅ Documents stored in vector database")
+                    print("  Documents stored in vector database")
                 except Exception as e:
-                    print(f"❌ Error storing in vector database: {e}")
+                    print(f" Error storing in vector database: {e}")
             
             # Update memory graph
             doc_id = f"doc_{Path(filepath).stem}"
@@ -722,13 +722,13 @@ class HybridRetriever:
         # 1. Search documents first
         doc_context = self._search_documents(query, max_doc_results)
         if doc_context:
-            results.append(f"📚 DOCUMENT KNOWLEDGE:\n{doc_context}")
+            results.append(f" DOCUMENT KNOWLEDGE:\n{doc_context}")
         
         # 2. Search web for current information
         if search_web:
             web_context = self._search_web(query, max_web_results)
             if web_context:
-                results.append(f"🌐 WEB KNOWLEDGE:\n{web_context}")
+                results.append(f" WEB KNOWLEDGE:\n{web_context}")
         
         if not results:
             return "No relevant information found in documents or web."
@@ -739,7 +739,7 @@ class HybridRetriever:
         # 4. Add decision guidance
         decision_prompt = f"""
         
-📊 ANALYSIS INSTRUCTION:
+ ## ANALYSIS INSTRUCTION:
 Based on the above information from both documents and web sources:
 1. Compare and contrast the information from both sources
 2. Identify any contradictions or confirmations
@@ -1034,11 +1034,11 @@ class RAGAgent:
         
         # Extract document sources
         doc_sources = re.findall(r'Source: ([^\n]+)', context)
-        sources.extend([f"📄 {source}" for source in doc_sources])
+        sources.extend([f" {source}" for source in doc_sources])
         
         # Extract web sources
         web_sources = re.findall(r'URL: ([^\n]+)', context)
-        sources.extend([f"🌐 {source}" for source in web_sources])
+        sources.extend([f" {source}" for source in web_sources])
         
         return list(set(sources))  # Remove duplicates
     
@@ -1068,7 +1068,7 @@ def create_streamlit_app():
     
     st.set_page_config(
         page_title="MemoryPal - Advanced RAG Assistant",
-        page_icon="🧠",
+        page_icon="Memo",
         layout="wide"
     )
     
@@ -1085,7 +1085,7 @@ def create_streamlit_app():
     
     # Sidebar
     with st.sidebar:
-        st.title("🧠 MemoryPal")
+        st.title(" MemoryPal")
         st.markdown("Advanced RAG Assistant with Memory")
         
         # System status
@@ -1094,15 +1094,15 @@ def create_streamlit_app():
         
         for key, value in status.items():
             if isinstance(value, bool):
-                icon = "✅" if value else "❌"
+                icon = " " if value else ""
                 st.write(f"{icon} {key.replace('_', ' ').title()}")
             else:
-                st.write(f"📊 {key.replace('_', ' ').title()}: {value}")
+                st.write(f" {key.replace('_', ' ').title()}: {value}")
         
         st.divider()
         
         # Document upload
-        st.subheader("📄 Document Upload")
+        st.subheader(" Document Upload")
         uploaded_file = st.file_uploader(
             "Choose a file",
             type=['pdf', 'txt', 'md'],
@@ -1132,13 +1132,13 @@ def create_streamlit_app():
         st.divider()
         
         # Processed documents
-        st.subheader("📚 Processed Documents")
+        st.subheader(" Processed Documents")
         docs = st.session_state.rag_agent.get_processed_documents()
         for doc in docs[:5]:  # Show latest 5
             st.write(f"• {Path(doc['filepath']).name}")
     
     # Main chat interface
-    st.title("💬 Chat with MemoryPal")
+    st.title(" Chat with MemoryPal")
     
     # Display chat messages
     for message in st.session_state.messages:
